@@ -1012,10 +1012,6 @@ class VandorLauncher(ctk.CTk):
             self.alive_results.insert("end", "[ERROR] Please enter target network or IP range\n")
             return
 
-        if not self.alive_tcp.get() and not self.alive_icmp.get():
-            self.alive_results.insert("end", "[ERROR] Select at least one scan method (TCP or ICMP)\n")
-            return
-
         self.alive_scan_stop = False
         self.start_alive_btn.configure(state="disabled")
         self.stop_alive_btn.configure(state="normal")
@@ -1028,156 +1024,78 @@ class VandorLauncher(ctk.CTk):
         custom_port = self.alive_custom_port.get().strip()
         
         if custom_port and custom_port.isdigit():
-            scan_port = int(custom_port)
+            scan_port = custom_port
         elif protocol != "auto" and protocol != "custom":
-            scan_port = self.get_port_for_protocol(protocol)
+            scan_port = str(self.get_port_for_protocol(protocol))
         else:
-            scan_port = None
+            scan_port = "21,22,23,25,110,143,161,389,993,995,1433,3306,3389,5432,5900,6379,8080,8443,27017"
+        
+        vandor_path = shutil.which("Vandor")
+        if not vandor_path:
+            local_exe = os.path.join(os.getcwd(), "Vandor.exe") if os.name == 'nt' else os.path.join(os.getcwd(), "Vandor")
+            if os.path.exists(local_exe):
+                vandor_path = local_exe
+        
+        if not vandor_path:
+            self.alive_results.insert("end", "[ERROR] Vandor not found! Please install first.\n")
+            self.start_alive_btn.configure(state="normal")
+            self.stop_alive_btn.configure(state="disabled")
+            return
+        
+        cmd = [vandor_path, "-hs", target_input, "-ps", scan_port, "-t", str(timeout), "-threads", str(threads), "-skip-alive"]
         
         self.alive_results.insert("end", "="*70 + "\n")
         self.alive_results.insert("end", f"[*] SCANNING: {target_input}\n")
-        self.alive_results.insert("end", f"[*] Protocol: {protocol}, Port: {scan_port if scan_port else 'auto detect'}\n")
-        self.alive_results.insert("end", f"[*] Method: TCP={self.alive_tcp.get()}, ICMP={self.alive_icmp.get()}\n")
-        self.alive_results.insert("end", f"[*] Timeout: {timeout}s, Threads: {threads}\n")
+        self.alive_results.insert("end", f"[*] Command: {' '.join(cmd)}\n")
         self.alive_results.insert("end", "="*70 + "\n\n")
-        
         self.alive_status.configure(text="Scanning...", text_color="#ffaa00")
         
-        def extract_hosts():
-            hosts_list = []
-            
-            if os.path.exists(target_input) and target_input.endswith('.txt'):
-                try:
-                    with open(target_input, 'r') as f:
-                        for line in f:
-                            line = line.strip()
-                            if line and not line.startswith('#'):
-                                if ':' in line:
-                                    parts = line.split(':', 1)
-                                    hosts_list.append((parts[0], parts[1]))
-                                else:
-                                    hosts_list.append((line, None))
-                    self.alive_results.insert("end", f"[*] Loaded {len(hosts_list)} hosts from file\n")
-                except Exception as e:
-                    self.alive_results.insert("end", f"[ERROR] Cannot read file: {e}\n")
-                    return None
-            elif '/' in target_input:
-                try:
-                    network = ipaddress.ip_network(target_input, strict=False)
-                    for ip in network.hosts():
-                        hosts_list.append((str(ip), None))
-                    self.alive_results.insert("end", f"[*] Generated {len(hosts_list)} IPs from CIDR\n")
-                except Exception as e:
-                    self.alive_results.insert("end", f"[ERROR] Invalid CIDR: {e}\n")
-                    return None
-            elif '-' in target_input:
-                try:
-                    parts = target_input.split('-')
-                    start_part = parts[0].strip()
-                    end_octet = int(parts[1].strip())
-                    if '.' in start_part:
-                        base_ip = '.'.join(start_part.split('.')[:-1])
-                        start_octet = int(start_part.split('.')[-1])
-                        for i in range(start_octet, min(end_octet + 1, 255)):
-                            hosts_list.append((f"{base_ip}.{i}", None))
-                    self.alive_results.insert("end", f"[*] Generated {len(hosts_list)} IPs from range\n")
-                except:
-                    self.alive_results.insert("end", f"[ERROR] Invalid IP range\n")
-                    return None
-            else:
-                if ':' in target_input:
-                    parts = target_input.split(':', 1)
-                    hosts_list.append((parts[0], parts[1]))
-                else:
-                    hosts_list.append((target_input, None))
-            
-            return hosts_list
-        
-        hosts_to_scan = extract_hosts()
-        if hosts_to_scan is None:
-            self.stop_alive_scan()
-            return
-        
-        results = []
-        results_lock = threading.Lock()
-        
-        def scan_worker(host_item):
-            if self.alive_scan_stop:
-                return
-            
-            host, specified_port = host_item
-            port_to_use = specified_port if specified_port else scan_port
-            
-            if self.alive_icmp.get():
-                try:
-                    param = '-n' if os.name == 'nt' else '-c'
-                    result = subprocess.run(
-                        ['ping', param, '1', '-w', str(timeout*1000), host] if os.name == 'nt' else ['ping', '-c', '1', '-W', str(timeout), host],
-                        capture_output=True,
-                        timeout=timeout+1
-                    )
-                    if result.returncode == 0:
-                        with results_lock:
-                            results.append((host, port_to_use or 80, "ICMP"))
-                            self.alive_results.insert("end", f"✅ ALIVE: {host}:{port_to_use or 80} (ICMP)\n")
-                            self.alive_results.see("end")
-                            self.alive_found.configure(text=f"Found: {len(results)} hosts")
-                        return
-                except:
-                    pass
-            
-            if self.alive_tcp.get():
-                test_ports = [int(port_to_use)] if port_to_use else [22, 80, 443, 3389, 21, 23, 445, 5900]
-                for test_port in test_ports:
+        def scan_thread():
+            try:
+                self.scan_process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    shell=False,
+                    bufsize=0
+                )
+                
+                for line in iter(self.scan_process.stdout.readline, b''):
                     if self.alive_scan_stop:
-                        return
-                    try:
-                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        sock.settimeout(timeout)
-                        result = sock.connect_ex((host, test_port))
-                        sock.close()
-                        if result == 0:
-                            with results_lock:
-                                results.append((host, test_port, "TCP"))
-                                self.alive_results.insert("end", f"✅ ALIVE: {host}:{test_port} (TCP)\n")
-                                self.alive_results.see("end")
-                                self.alive_found.configure(text=f"Found: {len(results)} hosts")
-                            return
-                    except:
-                        pass
+                        self.scan_process.terminate()
+                        break
+                    if line:
+                        try:
+                            decoded = line.decode('cp850', errors='replace')
+                            clean_line = re.sub(r'\x1b\[[0-9;]*[mK]', '', decoded)
+                            self.alive_results.insert("end", clean_line)
+                            self.alive_results.see("end")
+                            
+                            match = re.search(r'(\d+\.\d+\.\d+\.\d+):(\d+) OPEN', clean_line)
+                            if match:
+                                host, port = match.groups()
+                                self.alive_found.configure(text=f"Found: {host}:{port}")
+                        except:
+                            pass
+                
+                self.scan_process.wait()
+                
+                if not self.alive_scan_stop:
+                    self.alive_results.insert("end", "\n" + "="*70 + "\n")
+                    self.alive_results.insert("end", "[✓] SCAN COMPLETED\n")
+                    self.alive_status.configure(text="Ready", text_color="#00ff00")
+                else:
+                    self.alive_results.insert("end", "\n[!] Scan stopped by user\n")
+                    self.alive_status.configure(text="Stopped", text_color="#ff0000")
+                    
+            except Exception as e:
+                self.alive_results.insert("end", f"[ERROR] {str(e)}\n")
+            finally:
+                self.after(0, lambda: self.start_alive_btn.configure(state="normal"))
+                self.after(0, lambda: self.stop_alive_btn.configure(state="disabled"))
+                self.scan_process = None
         
-        threads_list = []
-        for host_item in hosts_to_scan:
-            if self.alive_scan_stop:
-                break
-            t = threading.Thread(target=scan_worker, args=(host_item,))
-            t.start()
-            threads_list.append(t)
-            time.sleep(0.05)
-        
-        for t in threads_list:
-            t.join()
-        
-        self.alive_results.insert("end", "\n" + "="*70 + "\n")
-        self.alive_results.insert("end", f"[✓] SCAN COMPLETED\n")
-        self.alive_results.insert("end", f"[✓] Total hosts scanned: {len(hosts_to_scan)}\n")
-        self.alive_results.insert("end", f"[✓] Alive hosts found: {len(results)}\n")
-        
-        if results:
-            self.alive_results.insert("end", "\n📋 ALIVE HOSTS LIST:\n")
-            self.alive_results.insert("end", "-"*40 + "\n")
-            for h, p, m in results:
-                self.alive_results.insert("end", f"  {h}:{p} [{m}]\n")
-            
-            filename = f"alive_hosts_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-            with open(filename, 'w') as f:
-                for h, p, m in results:
-                    f.write(f"{h}:{p}\n")
-            self.alive_results.insert("end", f"\n💾 Saved to: {filename}\n")
-        
-        self.alive_status.configure(text="Scan completed", text_color="#00ff00")
-        self.start_alive_btn.configure(state="normal")
-        self.stop_alive_btn.configure(state="disabled")
+        threading.Thread(target=scan_thread, daemon=True).start()
 
     def stop_alive_scan(self):
         self.alive_scan_stop = True
@@ -1209,7 +1127,7 @@ class VandorLauncher(ctk.CTk):
         )
         self.install_status.pack(pady=20)
 
-        install_cmd = 'go install -ldflags="-s -w" github.com/batmanpriv/Vandor@2.0.0'
+        install_cmd = 'go install -ldflags="-s -w" Vandor@2.0.0'
         
         cmd_frame = ctk.CTkFrame(install_frame, fg_color="#1a1a1a", corner_radius=8)
         cmd_frame.pack(pady=10, padx=20, fill="x")
@@ -1363,7 +1281,7 @@ class VandorLauncher(ctk.CTk):
         def install_thread():
             try:
                 process = subprocess.Popen(
-                    ["go", "install", '-ldflags="-s -w"',"github.com/batmanpriv/Vandor@2.0.0"],
+                    ["go", "install", '-ldflags="-s -w"',"Vandor@2.0.0"],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     universal_newlines=True
@@ -1432,11 +1350,10 @@ class VandorLauncher(ctk.CTk):
         current_tab = self.tabview.get()
         
         if current_tab == "📦 ARCHIVE CRACKER":
-            # اگر کاربر توی تب آرکایو هست، باید دکمه‌های مخصوص خودش رو بزنه
             return
         
         if current_tab == "💚 ALIVE SCANNER":
-            self.start_alive_scan()
+            self.log("[ERROR] Use the 'START ALIVE SCAN' button inside the Alive Scanner tab")
             return
 
         vandor_path = shutil.which("Vandor")

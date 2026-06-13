@@ -2022,14 +2022,15 @@ func main() {
 		}
 	}
 
-	if len(users) == 0 && *proto != "vnc" && *proto != "snmp" && *proto != "redis" {
-		fmt.Printf("%s[ERROR] No users specified! Use -u (username or file) or -c (creds file)%s\n", colors.Red, colors.Reset)
-		os.Exit(1)
-	}
-
-	if len(passes) == 0 && *proto != "vnc" && *proto != "snmp" && *proto == "ssh" {
-		fmt.Printf("%s[ERROR] No passwords specified! Use -psw (password or file)%s\n", colors.Red, colors.Reset)
-		os.Exit(1)
+	if *portScanFlag == "" {
+		if len(users) == 0 && *proto != "vnc" && *proto != "snmp" && *proto != "redis" {
+			fmt.Printf("%s[ERROR] No users specified! Use -u (username or file) or -c (creds file)%s\n", colors.Red, colors.Reset)
+			os.Exit(1)
+		}
+		if len(passes) == 0 && *proto != "vnc" && *proto != "snmp" && *proto == "ssh" {
+			fmt.Printf("%s[ERROR] No passwords specified! Use -psw (password or file)%s\n", colors.Red, colors.Reset)
+			os.Exit(1)
+		}
 	}
 
 	fmt.Printf("\n%s═══════════════════════════════════════════════════════════════%s\n", colors.Cyan, colors.Reset)
