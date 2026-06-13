@@ -1,4 +1,4 @@
-module Vandor
+module github.com/batmanpriv/Vandor
 
 go 1.25.0
 
