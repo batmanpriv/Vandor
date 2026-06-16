@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-MIT-red.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)](https://golang.org)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/batmanpriv/Vandor)
-[![Version](https://img.shields.io/badge/version-2.0.4-blue)](https://github.com/batmanpriv/Vandor)
+[![Version](https://img.shields.io/badge/version-2.0.5-blue)](https://github.com/batmanpriv/Vandor)
 
 **Multi-Protocol Attack Engine | GPU Accelerated | AI-Powered | Anti-Forensic | Web Inferno**
 
@@ -412,7 +412,7 @@ Real-time notifications for critical events:
 
 ```bash
 # Install latest version
-go install -ldflags="-s -w" github.com/batmanpriv/Vandor@2.0.4
+go install -ldflags="-s -w" github.com/batmanpriv/Vandor@2.0.5
 
 # Verify installation
 Vandor -example
