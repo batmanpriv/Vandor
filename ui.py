@@ -54,7 +54,7 @@ class VandorLauncher(ctk.CTk):
 
         self.title_label = ctk.CTkLabel(
             self.header_frame, 
-            text="VANDOR GUI v2.0.0 - Victory Arrives Never Directly, Only Remotely", 
+            text="VANDOR GUI v2.0.5 - Victory Arrives Never Directly, Only Remotely", 
             font=ctk.CTkFont(size=28, weight="bold", family="Consolas"),
             text_color="#ff3e3e"
         )
@@ -1127,7 +1127,7 @@ class VandorLauncher(ctk.CTk):
         )
         self.install_status.pack(pady=20)
 
-        install_cmd = 'go install -ldflags="-s -w" Vandor@2.0.0'
+        install_cmd = 'go install -ldflags="-s -w" Vandor@2.0.5'
         
         cmd_frame = ctk.CTkFrame(install_frame, fg_color="#1a1a1a", corner_radius=8)
         cmd_frame.pack(pady=10, padx=20, fill="x")
@@ -1281,7 +1281,7 @@ class VandorLauncher(ctk.CTk):
         def install_thread():
             try:
                 process = subprocess.Popen(
-                    ["go", "install", '-ldflags="-s -w"',"Vandor@2.0.0"],
+                    ["go", "install", '-ldflags="-s -w"',"Vandor@2.0.5"],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     universal_newlines=True
