@@ -408,6 +408,15 @@ Real-time notifications for critical events:
 
 ## 📥 Installation
 
+
+#### Binary Windows
+
+<a href="https://github.com/batmanpriv/Vandor/releases/download/2.0.5/Vandor.exe">Download
+
+#### Binray Linux
+
+<a href="https://github.com/batmanpriv/Vandor/releases/download/2.0.5/Vandor">Download
+
 ### Method 1: Go Install (Recommended)
 
 ```bash
