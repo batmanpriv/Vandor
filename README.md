@@ -3,7 +3,7 @@
 # Vandor - Multi-Protocol Security Testing Framework
 
 [![License](https://img.shields.io/badge/license-MIT-red.svg)](LICENSE)
-[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)](https://golang.org)
+[![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)](https://golang.org)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/batmanpriv/Vandor)
 [![Version](https://img.shields.io/badge/version-2.0.5-blue)](https://github.com/batmanpriv/Vandor)
 
@@ -153,7 +153,7 @@
 
 ### Prerequisites
 
-- Go 1.21 or higher
+- Go 1.25 or higher
 - Git (for building from source)
 - OS: Windows, Linux, or macOS
 
@@ -1006,17 +1006,6 @@ Violations may result in:
 
 USE RESPONSIBLY. STAY LEGAL. BE ETHICAL.
 ```
-
----
-
-## 🤝 Contributing
-
-We welcome contributions:
-
-- **Protocol Implementations**: Add more services
-- **Bug Reports**: Open issues with detailed steps
-- **Documentation**: More examples and tutorials
-- **Performance**: Optimize concurrency
 
 ---
 
